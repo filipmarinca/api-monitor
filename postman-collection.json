@@ -1,0 +1,534 @@
+{
+  "info": {
+    "name": "API Monitor",
+    "description": "Comprehensive API monitoring and analytics platform",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{jwt_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3001/api",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "api_key",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\",\n  \"name\": \"John Doe\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();",
+                  "pm.collectionVariables.set('jwt_token', response.token);",
+                  "pm.collectionVariables.set('api_key', response.user.apiKey);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"demo@apimonitor.dev\",\n  \"password\": \"demo123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/me",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "me"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Monitors",
+      "item": [
+        {
+          "name": "Get All Monitors",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/monitors",
+              "host": ["{{base_url}}"],
+              "path": ["monitors"]
+            }
+          }
+        },
+        {
+          "name": "Create Monitor",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Example API\",\n  \"url\": \"https://api.example.com/health\",\n  \"method\": \"GET\",\n  \"interval\": 300000,\n  \"timeout\": 30000,\n  \"expectedStatus\": 200,\n  \"regions\": [\"us-east\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/monitors",
+              "host": ["{{base_url}}"],
+              "path": ["monitors"]
+            }
+          }
+        },
+        {
+          "name": "Get Monitor by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/monitors/:id",
+              "host": ["{{base_url}}"],
+              "path": ["monitors", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Monitor",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated API\",\n  \"enabled\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/monitors/:id",
+              "host": ["{{base_url}}"],
+              "path": ["monitors", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Trigger Manual Check",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/monitors/:id/trigger",
+              "host": ["{{base_url}}"],
+              "path": ["monitors", ":id", "trigger"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Monitor",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/monitors/:id",
+              "host": ["{{base_url}}"],
+              "path": ["monitors", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Checks",
+      "item": [
+        {
+          "name": "Get Checks",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/checks?monitorId=&limit=100",
+              "host": ["{{base_url}}"],
+              "path": ["checks"],
+              "query": [
+                {
+                  "key": "monitorId",
+                  "value": ""
+                },
+                {
+                  "key": "limit",
+                  "value": "100"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Check Statistics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/checks/stats?monitorId=&period=24h",
+              "host": ["{{base_url}}"],
+              "path": ["checks", "stats"],
+              "query": [
+                {
+                  "key": "monitorId",
+                  "value": ""
+                },
+                {
+                  "key": "period",
+                  "value": "24h",
+                  "description": "Options: 1h, 24h, 7d, 30d"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Incidents",
+      "item": [
+        {
+          "name": "Get All Incidents",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/incidents",
+              "host": ["{{base_url}}"],
+              "path": ["incidents"]
+            }
+          }
+        },
+        {
+          "name": "Acknowledge Incident",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/incidents/:id/acknowledge",
+              "host": ["{{base_url}}"],
+              "path": ["incidents", ":id", "acknowledge"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Resolve Incident",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/incidents/:id/resolve",
+              "host": ["{{base_url}}"],
+              "path": ["incidents", ":id", "resolve"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Alert Rules",
+      "item": [
+        {
+          "name": "Get Alert Rules",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/alerts/rules",
+              "host": ["{{base_url}}"],
+              "path": ["alerts", "rules"]
+            }
+          }
+        },
+        {
+          "name": "Create Alert Rule",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"monitorId\": \"\",\n  \"name\": \"High Response Time Alert\",\n  \"condition\": \"SLOW\",\n  \"threshold\": 1000,\n  \"consecutiveFails\": 3,\n  \"email\": true,\n  \"webhook\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/alerts/rules",
+              "host": ["{{base_url}}"],
+              "path": ["alerts", "rules"]
+            }
+          }
+        },
+        {
+          "name": "Update Alert Rule",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"enabled\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/alerts/rules/:id",
+              "host": ["{{base_url}}"],
+              "path": ["alerts", "rules", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Alert Rule",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/alerts/rules/:id",
+              "host": ["{{base_url}}"],
+              "path": ["alerts", "rules", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Alert History",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/alerts/history?limit=50",
+              "host": ["{{base_url}}"],
+              "path": ["alerts", "history"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Status Pages",
+      "item": [
+        {
+          "name": "Get Status Page",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/status-pages/:slug",
+              "host": ["{{base_url}}"],
+              "path": ["status-pages", ":slug"],
+              "variable": [
+                {
+                  "key": "slug",
+                  "value": "demo-status"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Status Page",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"slug\": \"my-status\",\n  \"title\": \"My API Status\",\n  \"description\": \"Public status page\",\n  \"public\": true,\n  \"monitorIds\": []\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/status-pages",
+              "host": ["{{base_url}}"],
+              "path": ["status-pages"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3001/health",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3001",
+              "path": ["health"]
+            }
+          }
+        },
+        {
+          "name": "Readiness Check",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3001/health/ready",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3001",
+              "path": ["health", "ready"]
+            }
+          }
+        },
+        {
+          "name": "Prometheus Metrics",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3001/metrics",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3001",
+              "path": ["metrics"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
